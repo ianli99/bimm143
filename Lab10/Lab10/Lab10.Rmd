@@ -1,0 +1,31 @@
+---
+title: "Lab10"
+author: "Yushi Li (A15639705)"
+date: "2/17/2022"
+output: pdf_document
+---
+# Analyzing data from Ensemble
+```{r}
+mxl <- read.csv("Homo_sapiens_Variation_Sample_rs8067378.csv")
+head(mxl)
+table(mxl$Genotype..forward.strand.)
+9/(22+21+12+9)
+```
+
+# Boxplot
+## 1. Determining the sample size
+```{r}
+expr <- read.table("rs8067378_ENSG00000172057.6.txt")
+head(expr)
+
+nrow(expr)
+table(expr$geno)
+```
+## 2. Making a boxplot
+```{r}
+library(ggplot2)
+ggplot(expr, aes(x = geno, y = exp, fill = geno)) +
+  geom_boxplot(notch = TRUE) +
+  geom_point(alpha = 0.1, position = "jitter")
+```
+

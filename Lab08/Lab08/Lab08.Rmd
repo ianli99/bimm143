@@ -1,0 +1,354 @@
+---
+title: "Lab08"
+author: "Yushi Li (A15639705)"
+date: "2/10/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+# 1. Exploratory data analysis
+```{r}
+# Save your input data file into your Project directory
+fna.data <- "https://bioboot.github.io/bimm143_S20/class-material/WisconsinCancer.csv"
+
+# Input the data and store as wisc.df
+wisc.df <- read.csv(fna.data, row.names=1)
+head(wisc.df)
+
+# Remove 1st column:
+wisc.data <- wisc.df[,-1]
+head(wisc.data)
+
+# Create diagnosis vector for later 
+diagnosis <- factor(wisc.df$diagnosis)
+
+
+# Q1. How many observations are in this dataset?
+
+nrow(wisc.data)
+# A. There are 569 observations.
+
+
+# Q2. How many of the observations have a malignant diagnosis?
+
+sum(diagnosis == "M")
+# A. There are 212 observations with malignant diagnoses.
+
+
+# Q3. How many variables/features in the data are suffixed with _mean?
+
+# A. There are 10 variables with _mean.
+```
+
+# 2. Principal Component Analysis
+## Performing PCA
+```{r}
+# Check column means and standard deviations
+colMeans(wisc.data)
+apply(wisc.data,2,sd)
+
+# Perform PCA on wisc.data by completing the following code
+wisc.pr <- prcomp(wisc.data, scale=TRUE)
+
+# Look at summary of results
+summary(wisc.pr)
+
+
+# Q4. From your results, what proportion of the original variance is captured 
+# by the first principal components (PC1)?
+
+# A. 44.27% of original variance is captured by PC1.
+
+
+# Q5. How many principal components (PCs) are required to describe at least 70% 
+# of the original variance in the data?
+
+# A. 3 PCs are needed.
+
+
+# Q6. How many principal components (PCs) are required to describe at least 90% 
+# of the original variance in the data?
+
+# A. 7 PCs are required.
+```
+
+## Interpreting PCA results
+```{r}
+# Create a biplot of the wisc.pr using the biplot() function.
+biplot(wisc.pr)
+
+
+# Q7. What stands out to you about this plot? 
+# Is it easy or difficult to understand? Why?
+
+# A. The first thing that stood out was the large cluster of data within the
+# -10 to 10 range on both x- and y- axes. It is difficult to understand the plot
+# mainly due to the overlapping texts and arrows.
+
+
+# Scatter plot observations by components 1 and 2
+
+plot(wisc.pr$x[, 1], wisc.pr$x[, 2], col = diagnosis,
+     xlab = "PC1", ylab = "PC2")
+
+
+# Q8. Generate a similar plot for principal components 1 and 3. What do you 
+# notice about these plots?
+
+# Plot generation for PC1 and PC3:
+plot(wisc.pr$x[, 1], wisc.pr$x[, 3], col = diagnosis, 
+     xlab = "PC1", ylab = "PC3")
+
+# A. Most of the separations between malignant and benign diagnoses are along 
+# the x-axis (PC1). Meaning PC1 contributes most significantly to the different
+# distribution patterns of observations in malignant and benign diagnoses.
+
+
+# Using ggplot2 to better visualize results:
+# Create a data.frame for ggplot
+df <- as.data.frame(wisc.pr$x)
+df$diagnosis <- diagnosis
+
+# Load the ggplot2 package
+library(ggplot2)
+
+# Make a scatter plot colored by diagnosis
+ggplot(df) + 
+  aes(PC1, PC2, col = diagnosis) + 
+  geom_point()
+```
+
+## Variance explained
+```{r}
+# Calculate variance of each component
+pr.var <- wisc.pr$sdev^2
+head(pr.var)
+
+# Variance explained by each principal component: pve
+pve <- pr.var/sum(pr.var)
+
+# Plot variance explained for each principal component
+plot(pve, xlab = "Principal Component", 
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0, 1), type = "o")
+
+# Alternative scree plot of the same data, note data driven y-axis
+barplot(pve, ylab = "Precent of Variance Explained",
+     names.arg=paste0("PC",1:length(pve)), las=2, axes = FALSE)
+axis(2, at=pve, labels=round(pve,2)*100 )
+
+## (optional) ggplot based graph
+#install.packages("factoextra")
+library(factoextra)
+fviz_eig(wisc.pr, addlabels = TRUE)
+```
+
+## Communicating PCA results
+```{r}
+# Q9. For the first principal component, what is the component of the loading 
+# vector (i.e. wisc.pr$rotation[,1]) for the feature concave.points_mean?
+
+wisc.pr$rotation[,1]
+barplot(wisc.pr$rotation[,1], las=2)
+# A. For PC1, the loading vector for concave.points_mean has a component 
+# of -0.26085376.
+
+
+# Q10. What is the minimum number of principal components required to explain 
+# 80% of the variance of the data?
+
+# A. A minimum of 5 PCs are required to explain 80% of the variance of the data.
+```
+
+# 3. Hierarchical clustering
+```{r}
+# Scale the wisc.data data using the "scale()" function
+data.scaled <- scale(wisc.data)
+
+# Calculating the Euclidean distance between pairs:
+data.dist <- dist(data.scaled)
+
+# Create a hierarchical clustering model using complete linkage:
+wisc.hclust <- hclust(data.dist, "complete")
+```
+
+## Results of hierarchical clustering
+```{r}
+# Q11. Using the plot() and abline() functions, what is the height at which the 
+# clustering model has 4 clusters?
+
+plot(wisc.hclust)
+abline(h = 19, col="red", lty=2)
+
+# A. At h = 19, there are 4 clusters in the hierarchical clustering model.
+```
+
+## Selecting number of clusters
+```{r}
+# Use cutree() to cut the tree so that it has 4 clusters.
+wisc.hclust.clusters <- cutree(wisc.hclust, k = 4)
+
+# Use table() to compare the cluster membership to the actual diagnoses.
+table(wisc.hclust.clusters, diagnosis)
+
+# Q12. Can you find a better cluster vs diagnoses match by cutting into a 
+# different number of clusters between 2 and 10?
+
+wisc.hclust.clusters.5 <- cutree(wisc.hclust, k = 5)
+table(wisc.hclust.clusters.5, diagnosis)
+
+# A. Having 5 hierarchical clusters seemed to generate a slightly better match. 
+# It further sorted cluster 2 from the k = 4 clusters into its own cluster, with
+# less overlap between B and M in each cluster.
+```
+
+## Using different methods
+```{r}
+# Single (me too :')
+wisc.hclust.s <- hclust(data.dist, "single")
+plot(wisc.hclust.s)
+wisc.hclust.s.clusters <- cutree(wisc.hclust.s, k = 5)
+table(wisc.hclust.s.clusters, diagnosis)
+
+# Complete
+wisc.hclust.c <- hclust(data.dist, "complete")
+plot(wisc.hclust.c)
+wisc.hclust.c.clusters <- cutree(wisc.hclust.c, k = 5)
+table(wisc.hclust.c.clusters, diagnosis)
+
+# Average
+wisc.hclust.a <- hclust(data.dist, "average")
+plot(wisc.hclust.a)
+wisc.hclust.a.clusters <- cutree(wisc.hclust.a, k = 5)
+table(wisc.hclust.a.clusters, diagnosis)
+
+# ward.D2
+wisc.hclust.w <- hclust(data.dist, "ward.D2")
+plot(wisc.hclust.w)
+wisc.hclust.w.clusters <- cutree(wisc.hclust.w, k = 5)
+table(wisc.hclust.w.clusters, diagnosis)
+
+
+# Q13. Which method gives your favorite results for the same data.dist dataset? 
+# Explain your reasoning.
+
+# A. For k = 5, both "complete" and "ward.D2" generated relatively distinct 
+# separation between benign and malignant diagnoses, whereas "single" and 
+# "average" fail to separate the dataset based on diagnoses. I like "ward.D2" 
+# the most because it generates the most orderly hierarchy of the four methods.
+```
+
+# 4. OPTIONAL: K-means clustering
+## K-means clustering and comparing results
+```{r}
+# Create the k-means model
+wisc.km <- kmeans(scale(wisc.data), centers= 2, nstart= 20)
+
+# Compare results with table()
+table(wisc.km$cluster, diagnosis)
+
+
+# (Optional) Q14. How well does k-means separate the two diagnoses? How does it 
+# compare to your hclust results?
+
+# A. It separates the two diagnoses relatively well. It is similar to hclust 
+# in terms of separation. However, it only needs 2 clusters for the separation.
+
+
+# Compare k-mean results with hclust results
+table(wisc.hclust.clusters, wisc.km$cluster)
+```
+
+# 5. Combining methods
+## Clustering on PCA results
+```{r}
+# Create a hierarchical clustering model with the linkage method="ward.D2"
+dist.pr <- dist(wisc.pr$x[,1:7])
+wisc.pr.hclust <- hclust(dist.pr, "ward.D2")
+plot(wisc.pr.hclust)
+
+# Analyze the content of the two main branches
+grps <- cutree(wisc.pr.hclust, k=2)
+table(grps)
+table(grps, diagnosis)
+plot(wisc.pr$x[,1:2], col=grps)
+plot(wisc.pr$x[,1:2], col=diagnosis)
+
+# Oops colors are switched. Fixing...
+g <- as.factor(grps)
+levels(g)
+g <- relevel(g,2)
+levels(g)
+# Plot using our re-ordered factor (color fixed)
+plot(wisc.pr$x[,1:2], col=g)
+
+# Time to make a fancy 3-D plot
+library(rgl)
+plot3d(wisc.pr$x[,1:3], xlab="PC 1", ylab="PC 2", zlab="PC 3", cex=1.5, size=1, type="s", col=grps)
+
+
+# Q15. How well does the newly created model with four clusters separate out 
+# the two diagnoses?
+
+table(grps, diagnosis)
+
+# A. The clusters of this new model show clear separation between benign and 
+# malignant diagnoses, with group 1 largely corresponding to malignant and group
+# 2 to benign.
+
+
+# Q16. How well do the k-means and hierarchical clustering models you created in
+# previous sections (i.e. before PCA) do in terms of separating the diagnoses?
+
+table(wisc.km$cluster, diagnosis)
+table(wisc.hclust.clusters, diagnosis)
+
+# A. Both separated the diagnoses relatively well. K-mean produced 2 clusters, 
+# which are closer to the binary category of benign vs. malignant than the 4 
+# clusters generated by hierarchical clustering are.
+```
+
+# 6. Sensitivity/Specificity
+```{r}
+# Q17. Which of your analysis procedures resulted in a clustering model with the
+# best specificity? How about sensitivity?
+
+# For sensitivity:
+sen.combined <- 188/(188+24)
+sen.k <- 175/(175+37)
+sen.h <- (165+5+2)/(165+5+40+2)
+order(c(sen.combined, sen.k, sen.h), decreasing = TRUE)
+
+# For specificity:
+spe.combined <- 329/(24+329)
+spe.k <- 343/(343+37)
+spe.h <- 343/(40+343)
+order(c(spe.combined, spe.k, spe.h), decreasing = TRUE)
+
+# A. The combined clustering model has both the best sensitivity and the best 
+# specificity.
+```
+
+# 7. Prediction
+```{r}
+#url <- "new_samples.csv" Import and predict new data based on existing PCA
+url <- "https://tinyurl.com/new-samples-CSV"
+new <- read.csv(url)
+npc <- predict(wisc.pr, newdata=new)
+
+# Projecting new data onto PCA space
+plot(wisc.pr$x[,1:2], col=g)
+points(npc[,1], npc[,2], col="blue", pch=16, cex=3)
+text(npc[,1], npc[,2], c(1,2), col="white")
+
+# Q18. Which of these new patients should we prioritize for follow up based on 
+# your results?
+
+# A. Patient 2 should be prioritized as they fall into the same cluster as known
+# malignant diagnoses.
+```
+
+```{r}
+sessionInfo()
+```
+

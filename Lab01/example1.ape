@@ -1,0 +1,35 @@
+LOCUS       example1                 468 bp    DNA        linear       06-JAN-2022
+DEFINITION  .
+ACCESSION   
+VERSION     
+SOURCE      .
+  ORGANISM  .
+COMMENT     >example1
+COMMENT     ApEinfo:methylated:1
+FEATURES             Location/Qualifiers
+     misc_feature    20..20
+                     /locus_tag="mutation1"
+                     /label="mutation1"
+                     /ApEinfo_label="mutation1"
+                     /ApEinfo_fwdcolor="cyan"
+                     /ApEinfo_revcolor="green"
+                     /ApEinfo_graphicformat="arrow_data {{0 0.5 0 1 2 0 0 -1 0
+                     -0.5} {} 0} width 5 offset 0"
+     misc_feature    162..162
+                     /locus_tag="mutation2"
+                     /label="mutation2"
+                     /ApEinfo_label="mutation2"
+                     /ApEinfo_fwdcolor="cyan"
+                     /ApEinfo_revcolor="green"
+                     /ApEinfo_graphicformat="arrow_data {{0 0.5 0 1 2 0 0 -1 0
+                     -0.5} {} 0} width 5 offset 0"
+ORIGIN
+        1 ATGGTGCATC TGACTCCTGT GGAGAAGTCT GCCGTTACTG CCCTGTGGGG CAAGGTGAAC
+       61 GTGGATGAAG TTGGTGGTGA GGCCCTGGGC AGGCTGCTGG TGGTCTACCC TTGGACCCAG
+      121 AGGTTCTTTG AGTCCTTTGG GGATCTGTCC ACTCCTGATG CAGTTATGGG CAACCCTAAG
+      181 GTGAAGGCTC ATGGCAAGAA AGTGCTCGGT GCCTTTAGTG ATGGCCTGGC TCACCTGGAC
+      241 AACCTCAAGG GCACCTTTGC CACACTGAGT GAGCTGCACT GTGACAAGCT GCACGTGGAT
+      301 CCTGAGAACT TCAGGCTCCT GGGCAACGTG CTGGTCTGTG TGCTGGCCCA TCACTTTGGC
+      361 AAAGAATTCA CCCCACCAGT GCAGGCTGCC TATCAGAAAG TGGTGGCTGG TGTGGCTAAT
+      421 GCCCTGGCCC ACAAGTATCA CTAAGCTCGC TTTCTTGCTG TCCAATTT 
+//

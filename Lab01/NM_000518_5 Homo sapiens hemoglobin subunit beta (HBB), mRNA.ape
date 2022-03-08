@@ -1,0 +1,38 @@
+LOCUS       NM_000518_5_Homo         628 bp    DNA        linear       06-JAN-2022
+DEFINITION  .
+ACCESSION   
+VERSION     
+SOURCE      .
+  ORGANISM  .
+COMMENT     >NM_000518.5 Homo sapiens hemoglobin subunit beta (HBB), mRNA
+COMMENT     ApEinfo:methylated:1
+FEATURES             Location/Qualifiers
+     misc_feature    70..70
+                     /locus_tag="mutation1"
+                     /label="mutation1"
+                     /ApEinfo_label="mutation1"
+                     /ApEinfo_fwdcolor="cyan"
+                     /ApEinfo_revcolor="green"
+                     /ApEinfo_graphicformat="arrow_data {{0 0.5 0 1 2 0 0 -1 0
+                     -0.5} {} 0} width 5 offset 0"
+     misc_feature    212..212
+                     /locus_tag="mutation2"
+                     /label="mutation2"
+                     /ApEinfo_label="mutation2"
+                     /ApEinfo_fwdcolor="cyan"
+                     /ApEinfo_revcolor="green"
+                     /ApEinfo_graphicformat="arrow_data {{0 0.5 0 1 2 0 0 -1 0
+                     -0.5} {} 0} width 5 offset 0"
+ORIGIN
+        1 ACATTTGCTT CTGACACAAC TGTGTTCACT AGCAACCTCA AACAGACACC ATGGTGCATC
+       61 TGACTCCTGA GGAGAAGTCT GCCGTTACTG CCCTGTGGGG CAAGGTGAAC GTGGATGAAG
+      121 TTGGTGGTGA GGCCCTGGGC AGGCTGCTGG TGGTCTACCC TTGGACCCAG AGGTTCTTTG
+      181 AGTCCTTTGG GGATCTGTCC ACTCCTGATG CTGTTATGGG CAACCCTAAG GTGAAGGCTC
+      241 ATGGCAAGAA AGTGCTCGGT GCCTTTAGTG ATGGCCTGGC TCACCTGGAC AACCTCAAGG
+      301 GCACCTTTGC CACACTGAGT GAGCTGCACT GTGACAAGCT GCACGTGGAT CCTGAGAACT
+      361 TCAGGCTCCT GGGCAACGTG CTGGTCTGTG TGCTGGCCCA TCACTTTGGC AAAGAATTCA
+      421 CCCCACCAGT GCAGGCTGCC TATCAGAAAG TGGTGGCTGG TGTGGCTAAT GCCCTGGCCC
+      481 ACAAGTATCA CTAAGCTCGC TTTCTTGCTG TCCAATTTCT ATTAAAGGTT CCTTTGTTCC
+      541 CTAAGTCCAA CTACTAAACT GGGGGATATT ATGAAGGGCC TTGAGCATCT GGATTCTGCC
+      601 TAATAAAAAA CATTTATTTT CATTGCAA   
+//

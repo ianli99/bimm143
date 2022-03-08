@@ -1,0 +1,240 @@
+---
+title: "Lab07"
+author: "Yushi Li (A15639705)"
+date: "2/8/2022"
+output: pdf_document
+---
+# 1. PCA of UK food data
+## Data import
+```{r}
+url <- "https://tinyurl.com/UK-foods"
+x <- read.csv(url)
+
+# Q1. How many rows and columns are in your new data frame named x? What R 
+# functions could you use to answer this questions?
+dim(x)
+```
+
+## Checking the data
+```{r}
+# Preview the first 6 rows:
+head(x)
+# Remove row name for first row:
+rownames(x) <- x[,1]
+x <- x[,-1]
+head(x)
+# Checking dimensions again:
+dim(x)
+# An alternative approach to address incorrect row names:
+x <- read.csv(url, row.names = 1)
+head(x)
+
+
+# Q2. Which approach to solving the ‘row-names problem’ mentioned above do you 
+# prefer and why? Is one approach more robust than another under certain 
+# circumstances? 
+
+# A. I prefer the second method. It requires fewer lines of code and is also
+# more robust due to the consistence of row.name=1 over x <- x[,1]. Calling
+# x <- x[,1] multiple times would result in the loss of more than one row names.
+```
+
+## Spotting major differences and trends
+```{r}
+# Barplots don't really help much in terms of interpreting this set of data.
+barplot(as.matrix(x), beside = T, col=rainbow(nrow(x)))
+
+
+# Q3. Changing what optional argument in the above barplot() function results 
+# in the following plot?
+
+# A. Setting beside=F, or simply leave this argument out as it is F by default.
+barplot(as.matrix(x), beside = F, col = rainbow(nrow(x)))
+
+
+# Am I missing Q.4? I can't find it on the worksheet :(
+
+
+# Q5. Generating all pairwise plots may help somewhat. Can you make sense of 
+# the following code and resulting figure? What does it mean if a given point 
+# lies on the diagonal for a given plot?
+pairs(x, col = rainbow(10), pch = 16)
+
+# A. I can somewhat make sense of the code and the resulting figure. The code
+# makes one plot for each possible pair of regions (i.e. England vs. Scotland).
+# The resulting figure show the relationships between the consumption of each 
+# food type between a pair of regions. If a point is on the diagonal, it means 
+# the consumption of that particular food is consistent with a linear
+# relationship between two regions.
+
+
+# Q6. What is the main differences between N. Ireland and the other countries 
+# of the UK in terms of this data-set?
+
+# A. Based on this particular set of data, an average person in N. Ireland 
+# consumes significantly more fresh potatoes and less fresh fruits and alcoholic
+# drinks than people from other countries of the UK.
+```
+
+## PCA to the rescue
+```{r}
+# Use the prcomp() PCA function 
+pca <- prcomp( t(x) )
+summary(pca)
+
+
+# Q7. Complete the code below to generate a plot of PC1 vs PC2. The second line adds text labels over the data points.
+# Plot PC1 vs PC2
+plot(pca$x[,1], pca$x[,2], xlab = "PC1", ylab = "PC2", xlim = c(-270,500))
+text(pca$x[,1], pca$x[,2], colnames(x))
+
+
+# Q8. Customize your plot so that the colors of the country names match the colors in our UK and Ireland map and table at start of this document.
+country_col <- c("orange", "magenta", "blue", "green")
+plot(pca$x[,1], pca$x[,2], xlab = "PC1", ylab = "PC2", xlim = c(-270,500))
+text(pca$x[,1], pca$x[,2], colnames(x), col = country_col)
+
+
+# To calculate how much variation in the original data each PC accounts for:
+v <- round( pca$sdev^2/sum(pca$sdev^2) * 100 )
+v
+# Results agree with prcomp(), with PC1, PC2, and PC3 accounting for 67%, 29%, 
+# and 4% of total variation, respectively, as shown below using summary():
+## the second row here...
+z <- summary(pca)
+z$importance
+
+# Barplots of proportion of variance each PC accounts for:
+barplot(v, xlab="Principal Component", ylab="Percent Variation")
+```
+
+## Digging deeper (variable loadings)
+```{r}
+## Lets focus on PC1 as it accounts for > 90% of variance 
+par(mar=c(10, 3, 0.35, 0))
+barplot( pca$rotation[,1], las=2 )
+
+
+# Q9. Generate a similar ‘loadings plot’ for PC2. What two food groups feature 
+# prominently and what does PC2 mainly tell us about?
+par(mar=c(10, 3, 0.35, 0))
+barplot( pca$rotation[,2], las=2 )
+
+# A. Fresh_potatoes (again) and Soft_drinks feature most prominently in PC2, 
+# with Fresh_potatoes again pushing N. Ireland in the positive direction and 
+# with Soft_drinks pushing the rest of the countries in the negative direction 
+# on the y-axis.
+```
+
+## Biplots
+```{r}
+## The inbuilt biplot() can be useful for small datasets 
+biplot(pca)
+```
+
+# 2. PCA of RNA-seq data
+## Import data
+```{r}
+url2 <- "https://tinyurl.com/expression-CSV"
+rna.data <- read.csv(url2, row.names=1)
+head(rna.data)
+
+
+# Q10. How many genes and samples are in this data set?
+dim(rna.data)
+
+# A. There are 100 genes from 10 samples.
+```
+
+## Make the unpolished plot of PC1 and PC2 after PCA.
+```{r}
+pca2 <- prcomp(t(rna.data), scale=TRUE)
+plot(pca2$x[,1], pca2$x[,2], xlab="PC1", ylab="PC2")
+```
+ 
+## Assess how much variance each PC accounts for:
+```{r}
+summary(pca2)
+
+#make a quick scree plot:
+plot(pca2, main="'Squick' plot")
+```
+
+## Try manually make the same scree plot:
+```{r}
+# Variance captured per PC 
+pca.var <- pca2$sdev^2
+
+# Percent variance is often more informative to look at 
+pca.var.per <- round(pca.var/sum(pca.var)*100, 1)
+pca.var.per
+
+# Make the scree plot
+barplot(pca.var.per, main="Scree Plot", 
+        names.arg = paste0("PC", 1:10),
+        xlab="Principal Component", ylab="Percent Variation")
+```
+
+## Make the PCA plot more presentable:
+```{r}
+# Define and use a vector of colors for wt and ko samples
+colvec <- colnames(rna.data)
+colvec[grep("wt", colvec)] <- "blue"
+colvec[grep("ko", colvec)] <- "green"
+
+plot(pca2$x[,1], pca2$x[,2], col=colvec, pch=16,
+     xlab=paste0("PC1 (", pca.var.per[1], "%)"),
+     ylab=paste0("PC2 (", pca.var.per[2], "%)"))
+
+text(pca2$x[,1], pca2$x[,2], labels = colnames(rna.data), pos=c(rep(4,5), rep(2,5)))
+```
+
+### Use ggplot2
+```{r}
+# Load ggplot2
+library(ggplot2)
+
+# Define a data frame containing the PCA data
+df <- as.data.frame(pca2$x)
+
+# Our first basic plot
+ggplot(df) + 
+  aes(PC1, PC2) + 
+  geom_point()
+
+# Add a 'wt' and 'ko' "condition" column
+df$samples <- colnames(rna.data) 
+df$condition <- substr(colnames(rna.data),1,2)
+
+p <- ggplot(df) + 
+        aes(PC1, PC2, label=samples, col=condition) + 
+        geom_label(show.legend = FALSE)
+p
+
+# Polish the plot
+p + labs(title="PCA of RNASeq Data",
+       subtitle = "PC1 clealy seperates wild-type from knock-out samples",
+       x=paste0("PC1 (", pca.var.per[1], "%)"),
+       y=paste0("PC2 (", pca.var.per[2], "%)"),
+       caption="BIMM143 example data") +
+     theme_bw()
+```
+
+## Optional: find the 10 genes that contribute the most to variance in PC1:
+```{r}
+loading_scores <- pca2$rotation[,1]
+
+## Find the top 10 measurements (genes) that contribute
+## most to PC1 in either direction (+ or -)
+gene_scores <- abs(loading_scores) 
+gene_score_ranked <- sort(gene_scores, decreasing=TRUE)
+
+## show the names of the top 10 genes
+top_10_genes <- names(gene_score_ranked[1:10])
+top_10_genes 
+```
+#
+#
+```{r}
+sessionInfo()
+```
